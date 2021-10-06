@@ -22,3 +22,21 @@ select,
 textarea {
     max-width: 280px;
 }
+
+
+/*CUSTOM*/
+.time-picker {
+    width: 50px;
+}
+
+input[type=number]::-webkit-inner-spin-button {
+    opacity: 1
+}
+
+
+.time-table {
+    border-spacing: 20px;
+    border-collapse: separate;
+}
+
+

@@ -1,0 +1,60 @@
+﻿@model IEnumerable<LapTimeTracker.Models.Racer>
+
+@{
+    ViewBag.Title = "Top Lista";
+}
+
+<br />
+<br />
+<h2>Top Lista</h2>
+<br />
+<br />
+@{Html.RenderPartial("_TopLista");}
+
+
+
+
+<script type="text/javascript">
+
+ $('.btn-delete').click(function () {
+        var racerId = $(this).closest("tr").find("input[name='item.Id']").val();
+
+         Swal.fire({
+             title: 'Jeste li sigurni da želite izbrisati prijavu?',
+             showDenyButton: true,
+             showCancelButton: false,
+             confirmButtonText: 'Da',
+             denyButtonText: `Odustani`,
+         }).then((result) => {
+             if (result.isConfirmed) {
+
+            $.ajax({
+            type: "POST",
+            url: '@Url.Action("Izbrisi", "Admin")',
+            data: { id: racerId },
+                dataType: "json",
+               success: function (result) {
+
+                      if (result.success)
+                      {
+                          $("input[value='" + racerId + "']").closest('tr').fadeOut(1500);
+                      }
+                      else {
+                          Swal.fire({
+                              icon: 'error',
+                           title: 'Oops...',
+                           text: 'Dogodila se greška',
+                       });
+                      }
+                  }
+
+              });
+
+             }
+         })
+
+    });
+
+
+
+</script>

@@ -1,0 +1,141 @@
+﻿@model IEnumerable<LapTimeTracker.Models.Racer>
+
+@{
+    ViewBag.Title = "Prijave";
+}
+
+
+<br />
+<br />
+<h2>Novi zahtjevi</h2>
+<br />
+<br />
+@if (Model.Count() == 0)
+{
+    <h3>Nema novih zahtjeva!</h3>
+}
+
+else
+{
+    <table class="table">
+        <tr>
+
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LastName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LapTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AppStatus)
+            </th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <td>
+                    @Html.HiddenFor(modelItem => item.Id)
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LapTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AppStatus)
+                </td>
+                <td>
+                    <input type="button" value="Odobri" class="btn btn-submit" style="background-color:#42f56f" />
+                    <input type="button" value="Izbriši" class="btn btn-delete" style="background-color:#f26d55" />
+                </td>
+            </tr>
+        }
+
+    </table>
+}
+
+
+<script type="text/javascript">
+
+    //Submit unosa
+    $('.btn-submit').click(function () {
+        var racerId = $(this).closest("tr").find("input[name='item.Id']").val();
+
+            $.ajax({
+            type: "POST",
+            url: '@Url.Action("Odobri", "Admin")',
+            data: { id: racerId },
+                dataType: "json",
+               success: function (result) {
+
+                      if (result.success)
+                      {
+                          $("input[value='" + racerId + "']").closest('tr').fadeOut(1500);
+                      }
+                      else {
+                          Swal.fire({
+                              icon: 'error',
+                           title: 'Oops...',
+                           text: 'Dogodila se greška',
+                       });
+                      }
+                  }
+
+              });
+    });
+
+
+
+    //Brisanje prijave
+     $('.btn-delete').click(function () {
+        var racerId = $(this).closest("tr").find("input[name='item.Id']").val();
+
+         Swal.fire({
+             title: 'Jeste li sigurni da želite izbrisati prijavu?',
+             showDenyButton: true,
+             showCancelButton: false,
+             confirmButtonText: 'Da',
+             denyButtonText: `Odustani`,
+         }).then((result) => {
+             if (result.isConfirmed) {
+
+            $.ajax({
+            type: "POST",
+            url: '@Url.Action("Izbrisi", "Admin")',
+            data: { id: racerId },
+                dataType: "json",
+               success: function (result) {
+
+                      if (result.success)
+                      {
+                          $("input[value='" + racerId + "']").closest('tr').fadeOut(1500);
+                      }
+                      else {
+                          Swal.fire({
+                              icon: 'error',
+                           title: 'Oops...',
+                           text: 'Dogodila se greška',
+                       });
+                      }
+                  }
+
+              });
+
+
+
+             }
+         })
+
+    });
+
+
+
+</script>

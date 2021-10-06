@@ -23,7 +23,11 @@ namespace LapTimeTracker.Models
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)
         {
+            Database.SetInitializer<ApplicationDbContext>(null);
+           
         }
+
+        public DbSet<Racer> Racers { get; set; }
 
         public static ApplicationDbContext Create()
         {

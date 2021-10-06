@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LapTimeTracker.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -8,23 +9,34 @@ namespace LapTimeTracker.Controllers
 {
     public class HomeController : Controller
     {
+        private ApplicationDbContext db = new ApplicationDbContext();
+        // GET: Racer
         public ActionResult Index()
         {
-            return View();
+            return View(new LapTimeViewModel());
         }
 
-        public ActionResult About()
+        public ActionResult TopLista(bool admin)
         {
-            ViewBag.Message = "Your application description page.";
-
-            return View();
+            ViewBag.Admin = admin;
+            List<Racer> topPlayers = db.Racers.Where(x => x.RecordStatus > 0 && x.AppStatus == Status.Odobren).OrderBy(x => x.LapTimeTicks).ToList();
+            return PartialView("_TopLista", topPlayers);
         }
 
-        public ActionResult Contact()
+        public JsonResult Novi(LapTimeViewModel item)
         {
-            ViewBag.Message = "Your contact page.";
+            if (ModelState.IsValid)
+            {
+                var racer = item.Racer;
+                racer.LapTimeTicks = new TimeSpan(0, item.LapHours, item.LapMinutes, item.LapSeconds, item.LapMiliSeconds).Ticks;
+                db.Racers.Add(racer);
+                db.SaveChanges();
 
-            return View();
+                return Json(new { success = true });
+            }
+
+            return Json(new { success = false });
+
         }
     }
 }

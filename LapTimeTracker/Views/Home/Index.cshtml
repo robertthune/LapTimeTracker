@@ -1,31 +1,158 @@
-﻿@{
-    ViewBag.Title = "Home Page";
+﻿@model LapTimeTracker.Models.LapTimeViewModel
+
+@{
+
+    ViewBag.Title = "Prijava";
+
 }
+<br />
+<br />
+<h2>Nova prijava</h2>
+<div class="time-div">
+    <table class="time-table">
+        <tr>
+            <td>
+                @Html.LabelFor(m => m.Racer.Name)
+                @Html.TextBoxFor(m => m.Racer.Name)
+            </td>
+            <td>
+                @Html.LabelFor(m => m.Racer.LastName)
+                @Html.TextBoxFor(m => m.Racer.LastName)
+            </td>
+        </tr>
+        <tr>
 
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
-</div>
+            <td colspan="2" style="text-align:center">
+                @Html.Label("Vrijeme") &nbsp;&nbsp;
+                @Html.TextBoxFor(m => m.LapHours, new { @class = "time-picker", type = "number", min = 0, max = 23 })h&nbsp;&nbsp;
+                @Html.TextBoxFor(m => m.LapMinutes, new { @class = "time-picker", type = "number", min = 0, max = 59 })m&nbsp;&nbsp;
+                @Html.TextBoxFor(m => m.LapSeconds, new { @class = "time-picker", type = "number", min = 0, max = 59 })s&nbsp;&nbsp;
+                @Html.TextBoxFor(m => m.LapMiliSeconds, new { @class = "time-picker", type = "number", min = 0, max = 999, style = "width:60px;" })ms&nbsp;&nbsp;
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-    </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="button" id="btn_submit" class="btn btn-primary" value="Pošalji" style="display:none" />
+            </td>
+        </tr>
+    </table>
+
 </div>
+<hr />
+
+    <h2>Top Lista</h2>
+    <div>
+        @{Html.RenderAction("TopLista", "Home", new { admin = false });}
+    </div>
+
+
+
+<script type="text/javascript">
+
+    //Prikaz button-a
+    $("input[type='text']").change(function () {
+          var empty = false;
+        $("input[type='text']").each(function () {
+              if ($(this).val() == '') {
+                  empty = true;
+              }
+          });
+          if (empty) {
+            $('#btn_submit').hide();
+          } else {
+            $('#btn_submit').fadeIn(400);
+          }
+      });
+
+
+    //Submit unosa
+    $('#btn_submit').click(function () {
+
+          var validation = Validate_time();
+          if (validation) {
+              var inputData = $(".time-div").find("input").serializeArray();
+            $.ajax({
+                  type: "POST",
+                url: '@Url.Action("Novi", "Home")',
+                data: inputData,
+                dataType: "json",
+               success: function (result) {
+
+                      if (result.success) {
+                          Swal.fire({
+                              position: 'top-middle',
+                           icon: 'success',
+                           title: 'Vaša prijava je zaprimljena',
+                           showConfirmButton: false,
+                           timer: 3000
+                          })
+                       $("input[type='text']").val('');
+                       $("input[type='number']").val('0');
+                       $('#btn_submit').fadeOut(100);
+                      }
+                      else {
+                          Swal.fire({
+                              icon: 'error',
+                           title: 'Oops...',
+                           text: 'Dogodila se greška',
+                       });
+                      }
+                  }
+
+              });
+          }
+
+      });
+  
+
+    //Validacija unesenog vremena
+    function Validate_time()
+      {
+          var error = true;
+          var message='Niste upisali vrijeme!'
+
+        $("input[type='number']").each(function () {
+              if ($(this).val() != '0') {
+                  error = false;
+              }
+          });
+
+          if ($("#LapHours").val() > 23 || $("#LapMinutes").val() > 59 || $("#LapHours").val() > 59)
+          {
+              error = true;
+              message = 'Maksimalno vrijeme upisa je 23:59:59.999!'
+          }
+
+          if (error) {
+              Swal.fire({
+                  icon: 'error',
+                title: 'Oops...',
+                text: message,
+            });
+              return false;
+          }
+
+          else {
+              return true;
+          }
+      }
+
+    //Validacija unesenog broja znamenki
+    $('.time-picker').on('input', function () {
+
+          if ((this.name) == "LapMiliSeconds") {
+              if (this.value.length > 3)
+                $('#' + this.name).val(this.value.slice(0, 3));
+          }
+          else {
+
+              if (this.value.length > 2)
+                $('#'+this.name).val(this.value.slice(0, 2));
+          }
+      });
+
+
+
+
+</script>

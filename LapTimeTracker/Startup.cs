@@ -1,4 +1,7 @@
-﻿using Microsoft.Owin;
+﻿using LapTimeTracker.Models;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.Owin;
 using Owin;
 
 [assembly: OwinStartupAttribute(typeof(LapTimeTracker.Startup))]
@@ -10,5 +13,9 @@ namespace LapTimeTracker
         {
             ConfigureAuth(app);
         }
+
     }
+
+
+
 }
